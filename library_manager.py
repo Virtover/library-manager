@@ -139,6 +139,48 @@ class LibraryManager:
         
         return [tuple(row) for row in result.values]
     
+    def check_import_conflicts(self, file_path):
+        """Check for ISBN conflicts when importing (returns list of conflicting ISBNs)"""
+        try:
+            df_import = pd.read_csv(file_path, sep=';', dtype={'Signature': 'object', 'Year': 'object'})
+            # Validate columns
+            missing_cols = set(self.COLUMNS) - set(df_import.columns)
+            if missing_cols:
+                raise ValueError(f"Missing required columns: {missing_cols}")
+            
+            # Check for duplicate ISBNs
+            current_isbns = set(self.df['ISBN'].astype(str).str.strip())
+            import_isbns = set(df_import['ISBN'].astype(str).str.strip())
+            conflicts = list(current_isbns & import_isbns)
+            return conflicts
+        except Exception as e:
+            raise ValueError(f"Error reading import file: {str(e)}")
+    
+    def import_csv_merge(self, file_path):
+        """Import data from CSV file and merge with existing data (skip duplicates)"""
+        try:
+            df_import = pd.read_csv(file_path, sep=';', dtype={'Signature': 'object', 'Year': 'object'})
+            # Validate columns
+            missing_cols = set(self.COLUMNS) - set(df_import.columns)
+            if missing_cols:
+                raise ValueError(f"Missing required columns: {missing_cols}")
+            
+            # Reorder columns to match expected order
+            df_import = df_import[self.COLUMNS]
+            
+            # Get current ISBNs
+            current_isbns = set(self.df['ISBN'].astype(str).str.strip())
+            
+            # Filter out records with duplicate ISBNs
+            new_records = df_import[~df_import['ISBN'].astype(str).str.strip().isin(current_isbns)]
+            
+            # Append new records to existing dataframe
+            if len(new_records) > 0:
+                self.df = pd.concat([self.df, new_records], ignore_index=True)
+                self.save_data()
+        except Exception as e:
+            raise ValueError(f"Error importing CSV: {str(e)}")
+    
     def import_csv(self, file_path):
         """Import data from CSV file (semicolon-separated)"""
         try:

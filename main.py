@@ -118,6 +118,11 @@ class LibraryManagerGUI:
         columns = ('ISBN', 'Title', 'Author', 'Publisher', 'Year', 'Signature', 'Description', 'Keywords')
         self.tree = ttk.Treeview(table_frame, columns=columns, height=20, show='headings')
         
+        # Configure Treeview font size and rowheight for better readability
+        style = ttk.Style()
+        style.configure('Treeview', font=('Segoe UI', 10), rowheight=24)
+        style.configure('Treeview.Heading', font=('Segoe UI', 10, 'bold'))
+        
         # Column widths
         widths = [90, 180, 130, 130, 60, 110, 220, 180]
         self.sort_column = None
@@ -389,12 +394,34 @@ class LibraryManagerGUI:
         
         if file_path:
             try:
-                self.manager.import_csv(file_path)
+                # Check for conflicts before importing
+                conflicts = self.manager.check_import_conflicts(file_path)
+                
+                if conflicts:
+                    # Show conflicts and ask user
+                    conflict_text = f"Found {len(conflicts)} duplicate ISBN(s):\n\n"
+                    for isbn in conflicts[:10]:  # Show first 10
+                        conflict_text += f"  • {isbn}\n"
+                    if len(conflicts) > 10:
+                        conflict_text += f"  ... and {len(conflicts) - 10} more"
+                    
+                    conflict_text += "\n\nDo you want to:\n• YES: Add only new records (skip duplicates)\n• NO: Cancel import"
+                    
+                    result = messagebox.askyesno('Import Conflicts', conflict_text)
+                    if not result:
+                        return  # User cancelled
+                    
+                    # Import only new records
+                    self.manager.import_csv_merge(file_path)
+                else:
+                    # No conflicts - safe to add all
+                    self.manager.import_csv_merge(file_path)
+                
                 self.current_data = self.manager.get_all_records()
                 self.current_filter = {}
                 self.clear_filter()
                 self.refresh_table()
-                messagebox.showinfo('Import', f'✓ Imported {len(self.current_data)} records')
+                messagebox.showinfo('Import', f'✓ Successfully added new records to library')
             except Exception as e:
                 messagebox.showerror('Import Error', f'Error importing CSV: {str(e)}')
     
