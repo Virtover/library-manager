@@ -394,14 +394,14 @@ class LibraryManagerGUI:
         
         if file_path:
             try:
-                # Check for conflicts before importing
+                # Check for conflicts before importing (based on Signature field)
                 conflicts = self.manager.check_import_conflicts(file_path)
                 
                 if conflicts:
                     # Show conflicts and ask user
-                    conflict_text = f"Found {len(conflicts)} duplicate ISBN(s):\n\n"
-                    for isbn in conflicts[:10]:  # Show first 10
-                        conflict_text += f"  • {isbn}\n"
+                    conflict_text = f"Found {len(conflicts)} duplicate Signature(s):\n\n"
+                    for sig in conflicts[:10]:  # Show first 10
+                        conflict_text += f"  • {sig}\n"
                     if len(conflicts) > 10:
                         conflict_text += f"  ... and {len(conflicts) - 10} more"
                     

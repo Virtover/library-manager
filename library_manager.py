@@ -140,7 +140,7 @@ class LibraryManager:
         return [tuple(row) for row in result.values]
     
     def check_import_conflicts(self, file_path):
-        """Check for ISBN conflicts when importing (returns list of conflicting ISBNs)"""
+        """Check for Signature conflicts when importing (returns list of conflicting Signatures)"""
         try:
             df_import = pd.read_csv(file_path, sep=';', dtype={'Signature': 'object', 'Year': 'object'})
             # Validate columns
@@ -148,16 +148,16 @@ class LibraryManager:
             if missing_cols:
                 raise ValueError(f"Missing required columns: {missing_cols}")
             
-            # Check for duplicate ISBNs
-            current_isbns = set(self.df['ISBN'].astype(str).str.strip())
-            import_isbns = set(df_import['ISBN'].astype(str).str.strip())
-            conflicts = list(current_isbns & import_isbns)
+            # Check for duplicate Signatures (only non-null signatures)
+            current_sigs = set(self.df[self.df['Signature'].notna()]['Signature'].astype(str).str.strip())
+            import_sigs = set(df_import[df_import['Signature'].notna()]['Signature'].astype(str).str.strip())
+            conflicts = list(current_sigs & import_sigs)
             return conflicts
         except Exception as e:
             raise ValueError(f"Error reading import file: {str(e)}")
     
     def import_csv_merge(self, file_path):
-        """Import data from CSV file and merge with existing data (skip duplicates)"""
+        """Import data from CSV file and merge with existing data (skip records with duplicate Signatures)"""
         try:
             df_import = pd.read_csv(file_path, sep=';', dtype={'Signature': 'object', 'Year': 'object'})
             # Validate columns
@@ -168,11 +168,16 @@ class LibraryManager:
             # Reorder columns to match expected order
             df_import = df_import[self.COLUMNS]
             
-            # Get current ISBNs
-            current_isbns = set(self.df['ISBN'].astype(str).str.strip())
+            # Get current non-null Signatures
+            current_sigs = set(self.df[self.df['Signature'].notna()]['Signature'].astype(str).str.strip())
             
-            # Filter out records with duplicate ISBNs
-            new_records = df_import[~df_import['ISBN'].astype(str).str.strip().isin(current_isbns)]
+            # Filter out records with duplicate Signatures (only check if Signature is not null)
+            new_records = df_import[
+                ~(
+                    (df_import['Signature'].notna()) & 
+                    (df_import['Signature'].astype(str).str.strip().isin(current_sigs))
+                )
+            ]
             
             # Append new records to existing dataframe
             if len(new_records) > 0:
