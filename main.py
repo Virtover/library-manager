@@ -446,13 +446,16 @@ class LibraryManagerGUI:
             messagebox.showerror('Copy Error', f'Error copying: {str(e)}')
     
     def show_book_dialog(self, book_data=None):
-
-        
-        # Create a proper Toplevel dialog window
+        # Create a proper Toplevel dialog window with dark theme
         dialog = tk.Toplevel(self.root)
         dialog.title('Add Book' if not book_data else 'Edit Book')
         dialog.geometry('500x600')
         dialog.configure(bg='#212121')
+        # Try to apply dark theme to title bar on Windows 10/11
+        try:
+            dialog.wm_attributes('-darkmode', True)
+        except:
+            pass  # Not supported on all systems
         
         if book_data:
             isbn, title, author, publisher, year, signature, description, keywords = book_data
@@ -569,6 +572,8 @@ class LibraryManagerGUI:
 
 def main():
     root = ttk.Window(themename='darkly')
+    # Apply dark theme to window itself
+    root.configure(bg='#212121')
     app = LibraryManagerGUI(root)
     root.mainloop()
 
