@@ -44,7 +44,7 @@ Simply open the folder and run the .exe file.
 The app stores data in a simple CSV file (`library.csv`) with the following columns:
 
 ```
-ISBN,Title,Author,Publisher,Year,Signature,Description,Keywords
+ISBN;Title;Author;Publisher;Year;Signature;Description;Keywords
 ```
 
 You can import CSV files with the same format, and export filtered results.
