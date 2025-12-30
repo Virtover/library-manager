@@ -16,6 +16,9 @@ def build():
     # Create build folder
     BUILD_FOLDER.mkdir(exist_ok=True)
     
+    # Get icon path
+    icon_path = Path("icon/msf-favicon.ico")
+    
     # Run PyInstaller using python -m
     cmd = [
         sys.executable, '-m', 'PyInstaller',
@@ -26,6 +29,7 @@ def build():
         '--workpath', 'build',
         '--specpath', '.',
         '--hidden-import=pandas',
+        f'--icon={icon_path}',
         'main.py'
     ]
     

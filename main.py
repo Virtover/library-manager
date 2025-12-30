@@ -681,6 +681,12 @@ def main():
     root = ttk.Window(themename='darkly')
     # Apply dark theme to window itself
     root.configure(bg='#212121')
+    
+    # Set window icon
+    icon_path = APP_DIR / 'icon' / 'msf-favicon.ico'
+    if icon_path.exists():
+        root.iconbitmap(str(icon_path))
+    
     app = LibraryManagerGUI(root)
     root.mainloop()
 

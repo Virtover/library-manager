@@ -58,3 +58,14 @@ You can import CSV files with the same format, and export filtered results.
 - Empty or null signature values are allowed
 - All filtering is case-insensitive
 - CSV files are automatically saved after any changes
+
+## License & Attribution
+
+**Application**: MIT License
+
+**Icon**: The application icon is derived from [Logo Misjonarzy Świętej Rodziny](https://pl.wikipedia.org/wiki/Plik:Logo_Misjonarzy_%C5%9Awi%C4%99tej_Rodziny.svg) from Wikimedia Commons, used under the **Creative Commons Attribution 4.0 International License (CC BY 4.0)**.
+
+- **Original Creator**: Misjonarze Świętej Rodziny
+- **Source**: Wikimedia Commons
+- **License**: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
