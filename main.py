@@ -508,6 +508,14 @@ class LibraryManagerGUI:
         except:
             pass  # Not supported on all systems
         
+        # Set dialog icon for taskbar
+        icon_path = APP_DIR / 'icon' / 'msf-favicon.ico'
+        if icon_path.exists():
+            try:
+                dialog.iconbitmap(str(icon_path))
+            except:
+                pass  # Icon not available on all systems
+        
         if book_data:
             isbn, title, author, publisher, year, signature, description, keywords = book_data
         else:
@@ -682,10 +690,13 @@ def main():
     # Apply dark theme to window itself
     root.configure(bg='#212121')
     
-    # Set window icon
+    # Set window and taskbar icon
     icon_path = APP_DIR / 'icon' / 'msf-favicon.ico'
     if icon_path.exists():
-        root.iconbitmap(str(icon_path))
+        try:
+            root.iconbitmap(str(icon_path))
+        except:
+            pass  # Icon not available on all systems
     
     app = LibraryManagerGUI(root)
     root.mainloop()
