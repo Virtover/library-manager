@@ -158,6 +158,7 @@ class LibraryManagerGUI:
         self.tree.configure(selectmode='extended')
         self.last_selected_item = None
         self.tree.bind('<Button-1>', self.on_tree_click)
+        self.tree.bind('<Double-Button-1>', self.on_tree_double_click)  # Double-click to view book info
         
         # Status bar
         self.status_var = tk.StringVar(value='Ready')
@@ -227,6 +228,19 @@ class LibraryManagerGUI:
             # No modifier key: single click selects only this item
             self.tree.selection_set(item)
             self.last_selected_item = item
+    
+    def on_tree_double_click(self, event):
+        """Handle double-click to view book information"""
+        item = self.tree.identify('item', event.x, event.y)
+        if not item:
+            return
+        
+        # Get the book data from the tree item
+        tree_values = self.tree.item(item, 'values')
+        book_data = tuple(tree_values)
+        
+        # Show book info in read-only mode
+        self.show_book_dialog(book_data, read_only=True)
     
     def sort_by_column(self, col):
         """Sort table by clicked column (toggle ascending/descending)"""
@@ -445,10 +459,16 @@ class LibraryManagerGUI:
         except Exception as e:
             messagebox.showerror('Copy Error', f'Error copying: {str(e)}')
     
-    def show_book_dialog(self, book_data=None):
+    def show_book_dialog(self, book_data=None, read_only=False):
         # Create a proper Toplevel dialog window with dark theme
         dialog = tk.Toplevel(self.root)
-        dialog.title('Add Book' if not book_data else 'Edit Book')
+        
+        # Set title based on mode
+        if read_only:
+            dialog.title('📖 View Book')
+        else:
+            dialog.title('Add Book' if not book_data else 'Edit Book')
+        
         dialog.geometry('500x600')
         dialog.configure(bg='#212121')
         # Try to apply dark theme to title bar on Windows 10/11
@@ -490,8 +510,23 @@ class LibraryManagerGUI:
             label = tk.Label(field_container, text=label_text, font=('Segoe UI', 9, 'bold'), bg='#212121', fg='#e0e0e0')
             label.pack(anchor='w', pady=(0, 3))
             
-            field = tk.Entry(field_container, width=28, bg='#313131', fg='#e0e0e0', insertbackground='#e0e0e0', border=1, relief='solid')
+            field = tk.Entry(field_container, width=28, bg='#313131', fg='#e0e0e0', insertbackground='#e0e0e0', border=1, relief='solid',
+                            disabledbackground='#313131', disabledforeground='#e0e0e0')
             field.insert(0, str(default_val))
+            
+            # Make read-only by preventing edits but allowing selection and copy
+            if read_only:
+                def prevent_edit(event):
+                    # Allow Ctrl+C (copy)
+                    if event.state & 0x4 and event.keysym == 'c':  # Ctrl+C
+                        return
+                    # Allow Ctrl+A (select all)
+                    if event.state & 0x4 and event.keysym == 'a':  # Ctrl+A
+                        return
+                    return 'break'  # Block all other keys
+                
+                field.bind('<Key>', prevent_edit)
+            
             field.pack(fill='x')
             entries[field_key] = field
             return field
@@ -510,8 +545,24 @@ class LibraryManagerGUI:
         desc_label = tk.Label(main_frame, text='Description', font=('Segoe UI', 9, 'bold'), bg='#212121', fg='#e0e0e0')
         desc_label.pack(anchor='w', pady=(0, 3))
         
-        desc_field = tk.Text(main_frame, height=5, wrap='word', font=('Segoe UI', 9), bg='#313131', fg='#e0e0e0', insertbackground='#e0e0e0', border=1, relief='solid')
+        desc_field = tk.Text(main_frame, height=5, wrap='word', font=('Segoe UI', 9), bg='#313131', fg='#e0e0e0', insertbackground='#e0e0e0', border=1, relief='solid',
+                            selectbackground='#555555', selectforeground='#e0e0e0')
         desc_field.insert('1.0', str(description))
+        
+        # Make read-only by preventing edits but allowing selection and copy
+        if read_only:
+            def prevent_desc_edit(event):
+                # Allow Ctrl+C (copy)
+                if event.state & 0x4 and event.keysym == 'c':  # Ctrl+C
+                    return
+                # Allow Ctrl+A (select all)
+                if event.state & 0x4 and event.keysym == 'a':  # Ctrl+A
+                    return
+                return 'break'  # Block all other keys
+            
+            desc_field.bind('<Key>', prevent_desc_edit)
+            desc_field.config(state='normal')  # Keep normal state for selection
+        
         desc_field.pack(fill='both', expand=True, pady=(0, 10))
         entries['desc_entry'] = desc_field
         
@@ -519,8 +570,24 @@ class LibraryManagerGUI:
         kw_label = tk.Label(main_frame, text='Keywords (comma-separated)', font=('Segoe UI', 9, 'bold'), bg='#212121', fg='#e0e0e0')
         kw_label.pack(anchor='w', pady=(0, 3))
         
-        kw_field = tk.Entry(main_frame, bg='#313131', fg='#e0e0e0', insertbackground='#e0e0e0', border=1, relief='solid')
+        kw_field = tk.Entry(main_frame, bg='#313131', fg='#e0e0e0', insertbackground='#e0e0e0', border=1, relief='solid',
+                           disabledbackground='#313131', disabledforeground='#e0e0e0')
         kw_field.insert(0, str(keywords))
+        
+        # Make read-only by preventing edits but allowing selection and copy
+        if read_only:
+            def prevent_kw_edit(event):
+                # Allow Ctrl+C (copy)
+                if event.state & 0x4 and event.keysym == 'c':  # Ctrl+C
+                    return
+                # Allow Ctrl+A (select all)
+                if event.state & 0x4 and event.keysym == 'a':  # Ctrl+A
+                    return
+                return 'break'  # Block all other keys
+            
+            kw_field.bind('<Key>', prevent_kw_edit)
+            kw_field.config(state='normal')  # Keep normal state for selection
+        
         kw_field.pack(fill='x', pady=(0, 15))
         entries['kw_entry'] = kw_field
         
@@ -548,17 +615,26 @@ class LibraryManagerGUI:
                 import traceback
                 traceback.print_exc()
         
-        # Success button (green)
-        save_btn = tk.Button(button_frame, text='💾 Save', command=save, 
-                            bg='#26a65b', fg='white', font=('Segoe UI', 10, 'bold'),
-                            relief='flat', padx=12, pady=6, cursor='hand2', activebackground='#229954', activeforeground='white')
-        save_btn.pack(side='left', padx=5)
-        
-        # Cancel button (red)
-        cancel_btn = tk.Button(button_frame, text='✕ Cancel', command=dialog.destroy,
-                              bg='#e74c3c', fg='white', font=('Segoe UI', 10, 'bold'),
-                              relief='flat', padx=12, pady=6, cursor='hand2', activebackground='#c0392b', activeforeground='white')
-        cancel_btn.pack(side='left', padx=5)
+        # Show different buttons based on mode
+        if read_only:
+            # Read-only mode: only show Close button
+            close_btn = tk.Button(button_frame, text='✕ Close', command=dialog.destroy,
+                                  bg='#e74c3c', fg='white', font=('Segoe UI', 10, 'bold'),
+                                  relief='flat', padx=12, pady=6, cursor='hand2', activebackground='#c0392b', activeforeground='white')
+            close_btn.pack(side='left', padx=5)
+        else:
+            # Edit mode: show Save and Cancel buttons
+            # Success button (green)
+            save_btn = tk.Button(button_frame, text='💾 Save', command=save, 
+                                bg='#26a65b', fg='white', font=('Segoe UI', 10, 'bold'),
+                                relief='flat', padx=12, pady=6, cursor='hand2', activebackground='#229954', activeforeground='white')
+            save_btn.pack(side='left', padx=5)
+            
+            # Cancel button (red)
+            cancel_btn = tk.Button(button_frame, text='✕ Cancel', command=dialog.destroy,
+                                  bg='#e74c3c', fg='white', font=('Segoe UI', 10, 'bold'),
+                                  relief='flat', padx=12, pady=6, cursor='hand2', activebackground='#c0392b', activeforeground='white')
+            cancel_btn.pack(side='left', padx=5)
         
         # Make dialog modal and wait for it to close
         dialog.transient(self.root)
