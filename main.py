@@ -687,16 +687,17 @@ class LibraryManagerGUI:
 
 def main():
     root = ttk.Window(themename='darkly')
-    # Apply dark theme to window itself
-    root.configure(bg='#212121')
     
-    # Set window and taskbar icon
+    # Set window and taskbar icon FIRST (before other config)
     icon_path = APP_DIR / 'icon' / 'msf-favicon.ico'
     if icon_path.exists():
         try:
             root.iconbitmap(str(icon_path))
-        except:
+        except Exception as e:
             pass  # Icon not available on all systems
+    
+    # Apply dark theme to window itself
+    root.configure(bg='#212121')
     
     app = LibraryManagerGUI(root)
     root.mainloop()

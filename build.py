@@ -40,6 +40,15 @@ def build():
         print("[FAILED] Build failed: " + str(e))
         return False
     
+    # Copy icon folder to build output
+    icon_src = Path("icon")
+    icon_dst = BUILD_FOLDER / "icon"
+    if icon_src.exists():
+        if icon_dst.exists():
+            shutil.rmtree(icon_dst)
+        shutil.copytree(icon_src, icon_dst)
+        print("[OK] Copied icon folder")
+    
     # Create empty library.csv if it doesn't exist
     csv_path = BUILD_FOLDER / "library.csv"
     if not csv_path.exists():
