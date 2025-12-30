@@ -110,9 +110,20 @@ class LibraryManagerGUI:
         info_label = ttk.Label(button_row, text='💡 Shift+Click: range select  |  Ctrl+Click: multi-select  |  Ctrl+C: copy')
         info_label.pack(side='left', padx=20)
         
-        # Table frame
+        # Action buttons frame (pack FIRST so it never disappears)
+        action_frame = ttk.Frame(main_container)
+        action_frame.pack(fill='x', padx=20, pady=10, side='bottom')
+        
+        ttk.Button(action_frame, text='➕ Add', command=self.add_book, bootstyle='success').pack(side='left', padx=2)
+        ttk.Button(action_frame, text='✎ Edit', command=self.edit_book, bootstyle='info').pack(side='left', padx=2)
+        ttk.Button(action_frame, text='🗑 Delete', command=self.delete_book, bootstyle='danger').pack(side='left', padx=2)
+        ttk.Button(action_frame, text='🔄 Reload', command=self.refresh_table, bootstyle='secondary').pack(side='left', padx=2)
+        ttk.Button(action_frame, text='📂 Import', command=self.import_csv, bootstyle='warning').pack(side='left', padx=2)
+        ttk.Button(action_frame, text='⊗ Exit', command=self.root.quit, bootstyle='secondary').pack(side='right', padx=2)
+        
+        # Table frame (takes remaining space)
         table_frame = ttk.Frame(main_container)
-        table_frame.pack(fill='both', expand=True, padx=20, pady=10)
+        table_frame.pack(fill='both', expand=True, padx=20, pady=10, side='top')
         
         # Treeview
         columns = ('ISBN', 'Title', 'Author', 'Publisher', 'Year', 'Signature', 'Description', 'Keywords')
@@ -147,17 +158,6 @@ class LibraryManagerGUI:
         self.tree.configure(selectmode='extended')
         self.last_selected_item = None
         self.tree.bind('<Button-1>', self.on_tree_click)
-        
-        # Action buttons
-        action_frame = ttk.Frame(main_container)
-        action_frame.pack(fill='x', padx=20, pady=10)
-        
-        ttk.Button(action_frame, text='➕ Add', command=self.add_book, bootstyle='success').pack(side='left', padx=2)
-        ttk.Button(action_frame, text='✎ Edit', command=self.edit_book, bootstyle='info').pack(side='left', padx=2)
-        ttk.Button(action_frame, text='🗑 Delete', command=self.delete_book, bootstyle='danger').pack(side='left', padx=2)
-        ttk.Button(action_frame, text='🔄 Reload', command=self.refresh_table, bootstyle='secondary').pack(side='left', padx=2)
-        ttk.Button(action_frame, text='📂 Import', command=self.import_csv, bootstyle='warning').pack(side='left', padx=2)
-        ttk.Button(action_frame, text='⊗ Exit', command=self.root.quit, bootstyle='secondary').pack(side='right', padx=2)
         
         # Status bar
         self.status_var = tk.StringVar(value='Ready')
