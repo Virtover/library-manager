@@ -114,12 +114,33 @@ class LibraryManagerGUI:
         action_frame = ttk.Frame(main_container)
         action_frame.pack(fill='x', padx=20, pady=10, side='bottom')
         
-        ttk.Button(action_frame, text='➕ Add', command=self.add_book, bootstyle='success').pack(side='left', padx=2)
-        ttk.Button(action_frame, text='✎ Edit', command=self.edit_book, bootstyle='info').pack(side='left', padx=2)
-        ttk.Button(action_frame, text='🗑 Delete', command=self.delete_book, bootstyle='danger').pack(side='left', padx=2)
+        # Safety lock checkbox on the left
+        self.edit_enabled = tk.BooleanVar(value=False)
+        safety_checkbox = ttk.Checkbutton(action_frame, text='🔓 Enable Edit Mode', variable=self.edit_enabled, command=self.toggle_edit_mode)
+        safety_checkbox.pack(side='left', padx=5)
+        
+        # Edit/Delete buttons container
+        self.edit_buttons_frame = ttk.Frame(action_frame)
+        # Don't pack yet - will be packed/unpacked by toggle_edit_mode
+        
+        self.add_btn = ttk.Button(self.edit_buttons_frame, text='➕ Add', command=self.add_book, bootstyle='success')
+        self.add_btn.pack(side='left', padx=2)
+        
+        self.edit_btn = ttk.Button(self.edit_buttons_frame, text='✎ Edit', command=self.edit_book, bootstyle='info')
+        self.edit_btn.pack(side='left', padx=2)
+        
+        self.delete_btn = ttk.Button(self.edit_buttons_frame, text='🗑 Delete', command=self.delete_book, bootstyle='danger')
+        self.delete_btn.pack(side='left', padx=2)
+        
+        self.import_btn = ttk.Button(self.edit_buttons_frame, text='📂 Import', command=self.import_csv, bootstyle='warning')
+        self.import_btn.pack(side='left', padx=2)
+        
+        # Always visible buttons
         ttk.Button(action_frame, text='🔄 Reload', command=self.refresh_table, bootstyle='secondary').pack(side='left', padx=2)
-        ttk.Button(action_frame, text='📂 Import', command=self.import_csv, bootstyle='warning').pack(side='left', padx=2)
         ttk.Button(action_frame, text='⊗ Exit', command=self.root.quit, bootstyle='secondary').pack(side='right', padx=2)
+        
+        # Initialize edit mode (hide buttons by default)
+        self.toggle_edit_mode()
         
         # Table frame (takes remaining space)
         table_frame = ttk.Frame(main_container)
@@ -308,6 +329,16 @@ class LibraryManagerGUI:
                 messagebox.showinfo('Export', f'✓ Exported {len(self.current_data)} records')
             except Exception as e:
                 messagebox.showerror('Export Error', f'Error exporting: {str(e)}')
+    
+    def toggle_edit_mode(self):
+        """Show or hide edit/delete/import buttons based on checkbox"""
+        enabled = self.edit_enabled.get()
+        if enabled:
+            # Show the edit buttons frame
+            self.edit_buttons_frame.pack(side='left', fill='x', expand=False, padx=5)
+        else:
+            # Hide the edit buttons frame
+            self.edit_buttons_frame.pack_forget()
     
     def add_book(self):
         book = self.show_book_dialog()
