@@ -21,7 +21,7 @@ else:
     # Running as script
     APP_DIR = Path(__file__).parent
 
-DATA_FILE = APP_DIR / 'library.csv'
+DATA_FILE = APP_DIR / 'library.tsv'
 
 
 class LibraryManagerGUI:
@@ -105,7 +105,7 @@ class LibraryManagerGUI:
         
         ttk.Button(button_row, text='🔍 Apply Filter', command=self.apply_filter, bootstyle='success').pack(side='left', padx=2)
         ttk.Button(button_row, text='✕ Clear', command=self.clear_filter, bootstyle='secondary').pack(side='left', padx=2)
-        ttk.Button(button_row, text='💾 Export', command=self.export_csv, bootstyle='info').pack(side='left', padx=2)
+        ttk.Button(button_row, text='💾 Export', command=self.export_data, bootstyle='info').pack(side='left', padx=2)
         
         info_label = ttk.Label(button_row, text='💡 Shift+Click: range select  |  Ctrl+Click: multi-select  |  Ctrl+C: copy')
         info_label.pack(side='left', padx=20)
@@ -132,7 +132,7 @@ class LibraryManagerGUI:
         self.delete_btn = ttk.Button(self.edit_buttons_frame, text='🗑 Delete', command=self.delete_book, bootstyle='danger')
         self.delete_btn.pack(side='left', padx=2)
         
-        self.import_btn = ttk.Button(self.edit_buttons_frame, text='📂 Import', command=self.import_csv, bootstyle='warning')
+        self.import_btn = ttk.Button(self.edit_buttons_frame, text='📂 Import', command=self.import_data, bootstyle='warning')
         self.import_btn.pack(side='left', padx=2)
         
         # Always visible buttons
@@ -312,20 +312,20 @@ class LibraryManagerGUI:
         self.current_data = self.manager.get_all_records()
         self.refresh_table()
     
-    def export_csv(self):
+    def export_data(self):
         if not self.current_data:
             messagebox.showwarning('Export', 'No records to export')
             return
         
         file_path = filedialog.asksaveasfilename(
-            defaultextension='.csv',
-            filetypes=[('CSV Files', '*.csv'), ('All Files', '*.*')]
+            defaultextension='.tsv',
+            filetypes=[('TSV Files', '*.tsv'), ('CSV Files', '*.csv'), ('All Files', '*.*')]
         )
         
         if file_path:
             try:
                 df = pd.DataFrame(self.current_data, columns=['ISBN', 'Title', 'Author', 'Publisher', 'Year', 'Signature', 'Description', 'Keywords'])
-                df.to_csv(file_path, sep=';', index=False)
+                df.to_csv(file_path, sep='\t', index=False)
                 messagebox.showinfo('Export', f'✓ Exported {len(self.current_data)} records')
             except Exception as e:
                 messagebox.showerror('Export Error', f'Error exporting: {str(e)}')
@@ -432,9 +432,9 @@ class LibraryManagerGUI:
             except Exception as e:
                 messagebox.showerror('Error', f'Error deleting book: {str(e)}')
     
-    def import_csv(self):
+    def import_data(self):
         file_path = filedialog.askopenfilename(
-            filetypes=[('CSV Files', '*.csv'), ('All Files', '*.*')]
+            filetypes=[('TSV Files', '*.tsv'), ('CSV Files', '*.csv'), ('All Files', '*.*')]
         )
         
         if file_path:
@@ -457,10 +457,10 @@ class LibraryManagerGUI:
                         return  # User cancelled
                     
                     # Import only new records
-                    self.manager.import_csv_merge(file_path)
+                    self.manager.import_data_merge(file_path)
                 else:
                     # No conflicts - safe to add all
-                    self.manager.import_csv_merge(file_path)
+                    self.manager.import_data_merge(file_path)
                 
                 self.current_data = self.manager.get_all_records()
                 self.current_filter = {}
@@ -468,7 +468,7 @@ class LibraryManagerGUI:
                 self.refresh_table()
                 messagebox.showinfo('Import', f'✓ Successfully added new records to library')
             except Exception as e:
-                messagebox.showerror('Import Error', f'Error importing CSV: {str(e)}')
+                messagebox.showerror('Import Error', f'Error importing file: {str(e)}')
     
     def copy_selection(self, event=None):
         """Copy selected rows to clipboard (tab-separated)"""

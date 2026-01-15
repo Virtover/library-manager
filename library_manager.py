@@ -15,10 +15,10 @@ class LibraryManager:
         self.df = self.load_data()
     
     def load_data(self):
-        """Load data from CSV file (semicolon-separated)"""
+        """Load data from TSV file (tab-separated)"""
         if os.path.exists(self.data_file):
             try:
-                df = pd.read_csv(self.data_file, sep=';', dtype={'Signature': 'object', 'Year': 'object'})
+                df = pd.read_csv(self.data_file, sep='\t', dtype={'Signature': 'object', 'Year': 'object'})
                 return df
             except Exception:
                 return self._create_empty_dataframe()
@@ -29,9 +29,9 @@ class LibraryManager:
         return pd.DataFrame(columns=self.COLUMNS)
     
     def save_data(self):
-        """Save data to CSV file (semicolon-separated)"""
+        """Save data to TSV file (tab-separated)"""
         os.makedirs(os.path.dirname(self.data_file) or '.', exist_ok=True)
-        self.df.to_csv(self.data_file, sep=';', index=False)
+        self.df.to_csv(self.data_file, sep='\t', index=False)
     
     def get_all_records(self):
         """Get all records as list of tuples"""
@@ -142,7 +142,7 @@ class LibraryManager:
     def check_import_conflicts(self, file_path):
         """Check for Signature conflicts when importing (returns list of conflicting Signatures)"""
         try:
-            df_import = pd.read_csv(file_path, sep=';', dtype={'Signature': 'object', 'Year': 'object'})
+            df_import = pd.read_csv(file_path, sep='\t', dtype={'Signature': 'object', 'Year': 'object'})
             # Validate columns
             missing_cols = set(self.COLUMNS) - set(df_import.columns)
             if missing_cols:
@@ -156,10 +156,10 @@ class LibraryManager:
         except Exception as e:
             raise ValueError(f"Error reading import file: {str(e)}")
     
-    def import_csv_merge(self, file_path):
-        """Import data from CSV file and merge with existing data (skip records with duplicate Signatures)"""
+    def import_data_merge(self, file_path):
+        """Import data from TSV file and merge with existing data (skip records with duplicate Signatures)"""
         try:
-            df_import = pd.read_csv(file_path, sep=';', dtype={'Signature': 'object', 'Year': 'object'})
+            df_import = pd.read_csv(file_path, sep='\t', dtype={'Signature': 'object', 'Year': 'object'})
             # Validate columns
             missing_cols = set(self.COLUMNS) - set(df_import.columns)
             if missing_cols:
@@ -184,12 +184,12 @@ class LibraryManager:
                 self.df = pd.concat([self.df, new_records], ignore_index=True)
                 self.save_data()
         except Exception as e:
-            raise ValueError(f"Error importing CSV: {str(e)}")
+            raise ValueError(f"Error importing file: {str(e)}")
     
-    def import_csv(self, file_path):
-        """Import data from CSV file (semicolon-separated)"""
+    def import_data(self, file_path):
+        """Import data from TSV file (tab-separated)"""
         try:
-            df = pd.read_csv(file_path, sep=';', dtype={'Signature': 'object', 'Year': 'object'})
+            df = pd.read_csv(file_path, sep='\t', dtype={'Signature': 'object', 'Year': 'object'})
             # Validate columns
             missing_cols = set(self.COLUMNS) - set(df.columns)
             if missing_cols:
@@ -200,4 +200,4 @@ class LibraryManager:
             self.df = df
             self.save_data()
         except Exception as e:
-            raise Exception(f"Failed to import CSV: {str(e)}")
+            raise Exception(f"Failed to import file: {str(e)}")

@@ -5,8 +5,8 @@ A simple, lightweight desktop application for managing your book library.
 ## Features
 - **Add, Edit, Delete** books in your library
 - **Filter** by ISBN, Title, Author, Publisher, Year, Signature, or Keywords
-- **Import CSV** data from existing libraries
-- **Export CSV** of filtered results
+- **Import TSV** data from existing libraries
+- **Export TSV** of filtered results
 - **Unique Signatures** (optional) for book identification
 - Small, single-file executable - no installation needed
 
@@ -26,7 +26,7 @@ python build.py
 
 This creates a folder `MSF Library Manager` with:
 - `library-manager.exe` - the executable
-- `library.csv` - your library data file
+- `library.tsv` - your library data file
 
 Simply open the folder and run the .exe file.
 
@@ -40,14 +40,14 @@ Simply open the folder and run the .exe file.
 - **Description** - Book description
 - **Keywords** - Search keywords
 
-## CSV Format
-The app stores data in a simple CSV file (`library.csv`) with the following columns:
+## Data Format
+The app stores data in a tab-separated values (TSV) file (`library.tsv`) with the following columns:
 
 ```
-ISBN;Title;Author;Publisher;Year;Signature;Description;Keywords
+ISBN	Title	Author	Publisher	Year	Signature	Description	Keywords
 ```
 
-You can import CSV files with the same format, and export filtered results.
+You can import TSV files with the same format, and export filtered results.
 
 ## System Requirements
 - Windows 7+, macOS 10.12+, or Linux
@@ -57,7 +57,7 @@ You can import CSV files with the same format, and export filtered results.
 - Signatures must be unique (if provided)
 - Empty or null signature values are allowed
 - All filtering is case-insensitive
-- CSV files are automatically saved after any changes
+- TSV files are automatically saved after any changes
 
 ## License & Attribution
 

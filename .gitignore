@@ -37,7 +37,7 @@ MSF\ Library\ Manager/
 library-manager.spec
 
 # Test/Sample data
-sample-library.csv
-sample-library-30k.csv
+sample-library.tsv
+sample-library-30k.tsv
 generate_sample.py
 test_*.py

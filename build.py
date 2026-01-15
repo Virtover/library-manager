@@ -49,12 +49,12 @@ def build():
         shutil.copytree(icon_src, icon_dst)
         print("[OK] Copied icon folder")
     
-    # Create empty library.csv if it doesn't exist
-    csv_path = BUILD_FOLDER / "library.csv"
-    if not csv_path.exists():
-        with open(csv_path, 'w') as f:
-            f.write("ISBN;Title;Author;Publisher;Year;Signature;Description;Keywords\n")
-        print("[OK] Created " + str(csv_path))
+    # Create empty library.tsv if it doesn't exist
+    tsv_path = BUILD_FOLDER / "library.tsv"
+    if not tsv_path.exists():
+        with open(tsv_path, 'w') as f:
+            f.write("ISBN\tTitle\tAuthor\tPublisher\tYear\tSignature\tDescription\tKeywords\n")
+        print("[OK] Created " + str(tsv_path))
     
     # Cleanup build artifacts
     if Path('build').exists():
