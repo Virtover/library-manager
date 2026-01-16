@@ -18,6 +18,18 @@ var/
 wheels/
 *.egg-info/
 .installed.cfg
+
+# Application data
+library.db
+library.db-journal
+library.tsv
+books.tsv
+main_old.py
+library_manager.py
+
+# Build outputs
+MSF Library Manager/
+*.spec
 *.egg
 
 # Virtual environments

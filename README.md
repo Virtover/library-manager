@@ -1,34 +1,64 @@
 # Library Manager
 
-A simple, lightweight desktop application for managing your book library.
+A modern desktop application system for managing your book library with both management and viewer capabilities.
 
-## Features
+## Applications
+
+### 1. Library Manager
+Full-featured book management application with SQLite database storage.
+
+**Features:**
 - **Add, Edit, Delete** books in your library
 - **Filter** by ISBN, Title, Author, Publisher, Year, Signature, or Keywords
 - **Import TSV** data from existing libraries
 - **Export TSV** of filtered results
 - **Unique Signatures** (optional) for book identification
-- Small, single-file executable - no installation needed
+- **SQLite Database** for reliable data storage
+- **Edit Mode Protection** with safety lock
+- Automatically syncs data to viewer
+
+### 2. Books Viewer
+Read-only viewer for browsing book collections.
+
+**Features:**
+- **View-Only Access** - no accidental edits
+- **Filter & Search** capabilities
+- **Export** filtered results
+- **Lightweight** - reads from books.tsv file
+- **Real-time Updates** from Library Manager
+- Perfect for public display or shared access
 
 ## Quick Start
 
 ### Run from Source (Development)
 ```bash
 pip install -r requirements.txt
+
+# Run Manager
 python main.py
+
+# Run Viewer
+cd books-viewer
+python viewer.py
 ```
 
-### Build Standalone Executable
+### Build Standalone Executables
 ```bash
 pip install pyinstaller
 python build.py
 ```
 
 This creates a folder `MSF Library Manager` with:
-- `library-manager.exe` - the executable
-- `library.tsv` - your library data file
+- `library-manager.exe` - the full manager application
+- `library.db` - SQLite database file
+- `books-viewer/books-viewer.exe` - the read-only viewer
+- `books-viewer/books.tsv` - synchronized book data for viewer
 
-Simply open the folder and run the .exe file.
+## Architecture
+
+**Library Manager** stores data in `library.db` (SQLite database) and automatically exports to `books-viewer/books.tsv` whenever data changes.
+
+**Books Viewer** reads from `books.tsv` file only, providing read-only access without database dependencies.
 
 ## Data Fields
 - **ISBN** - ISBN number
@@ -40,24 +70,32 @@ Simply open the folder and run the .exe file.
 - **Description** - Book description
 - **Keywords** - Search keywords
 
-## Data Format
-The app stores data in a tab-separated values (TSV) file (`library.tsv`) with the following columns:
-
-```
-ISBN	Title	Author	Publisher	Year	Signature	Description	Keywords
-```
-
-You can import TSV files with the same format, and export filtered results.
-
 ## System Requirements
 - Windows 7+, macOS 10.12+, or Linux
 - No installation needed - just run the executable
 
 ## Notes
-- Signatures must be unique (if provided)
+- **Manager**: Signatures must be unique (if provided)
 - Empty or null signature values are allowed
 - All filtering is case-insensitive
-- TSV files are automatically saved after any changes
+- Manager automatically syncs to viewer on any change
+- **Viewer**: Automatically reloads data when refreshed
+- TSV files are tab-separated values format
+
+## Development Structure
+```
+library-manager/
+├── main.py              # Library Manager application
+├── db_manager.py        # SQLite database operations
+├── common_ui.py         # Shared UI components
+├── library.db           # SQLite database (created on first run)
+├── books-viewer/
+│   ├── viewer.py        # Books Viewer application
+│   ├── viewer_data.py   # TSV file operations
+│   ├── common_ui.py     # Shared UI (copy)
+│   └── books.tsv        # Synchronized book data
+└── build.py             # Build script for both apps
+```
 
 ## License & Attribution
 
